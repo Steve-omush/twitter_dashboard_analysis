@@ -1,20 +1,14 @@
 import streamlit as st
-
-import requests
-from bs4 import BeautifulSoup
-
-#data
-import json
 import pandas as pd
-
-#plotting
 import plotly.express as px
-import seaborn as sns
 
-st.title("Trying an app")
+# Sample data
+data = {
+    'Date': ['2022-01-01', '2022-01-02', '2022-01-03', '2022-01-04', '2022-01-05'],
+    'Value': [10, 15, 13, 17, 20]
+}
+df = pd.DataFrame(data)
 
-def get_count(tag):
-    url = f"https://www.instagram.com/explore/tags"
-    s = requests.get(url)
-    soup = BeautifulSoup(s.content)
-    return int(soup.find_all("meta")[6]["content"].split)
+# Create an interactive line graph with Plotly
+fig = px.line(df, x='Date', y='Value', title='Interactive Line Graph')
+st.plotly_chart(fig)

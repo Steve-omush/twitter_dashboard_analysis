@@ -78,3 +78,36 @@ def hello():
     print("Hello, world!")
 '''
 st.code(code, language='python')
+
+
+
+
+# Getting User Details on a clicked Pie Chart
+
+
+
+    # Add a click event handler to the pie chart
+    if st.session_state.clicked_user:
+        st.write(f"Details of {st.session_state.clicked_user}:")
+
+# Define the user details page
+@app.add_page("User Details")
+def show_user_details(username=None):
+    if username is not None:
+        user_details = get_user_details(username)
+
+        # Display user details using Streamlit elements
+        st.header(f"Details for User: {user_details['Name']}")
+        st.text(f"User Name: {user_details['Username']}")
+        st.text(f"Client: {user_details['Client']}")
+
+def get_user_details(username):
+    user_data = format_df[format_df['Username'] == username].iloc[0]
+    return {
+        'Name': user_data['Name'],
+        'Username': user_data['Username'],
+        'Client': user_data['Client']
+    }
+
+if st.session_state.clicked_user:
+    show_user_details(st.session_state.clicked_user)
