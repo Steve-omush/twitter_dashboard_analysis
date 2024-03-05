@@ -1,0 +1,13 @@
+1. Also need a page, 
+
+- where we can get the top 10 hashtags per month. Each month will be selected by at the sidebar.
+
+- Show the clients distribution for that particular month
+
+- Top 10 Users (judged by User Following) for that month
+
+- Top 10 Locations for that month
+
+
+page will be called monthly details
+

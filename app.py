@@ -22,6 +22,8 @@ import pandas as pd
 # Load data
 sampled_df = pd.read_csv('C:/Users/MACTECH/OneDrive/Desktop/4.2/REAL PROJECT/csv/preprocessed.csv')
 
+
+st.markdown("<h1 style='text-align: center;'>Hashtag Analysis</h1>", unsafe_allow_html=True)
 # Function to get top 5 hashtags
 def get_top_hashtags(df):
     # Flatten the hashtags column
