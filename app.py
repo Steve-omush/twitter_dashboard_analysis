@@ -1,37 +1,87 @@
+from sqlalchemy import create_engine, Column, String, Integer
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from passlib.hash import bcrypt
 import streamlit as st
-import plotly.express as px
-import pandas as pd
-import altair as alt
-import pycountry
-import plotly.graph_objects as go
-from pathlib import Path
-import streamlit_authenticator as stauth
-import pickle
 
+# Create engine
+DATABASE_URL = "postgresql://voste:steve@localhost/users"
+engine = create_engine(DATABASE_URL)
 
-st.set_page_config(
-    page_title = "User Details Page",
-    page_icon=":coffee:",
-    layout="wide",
-    initial_sidebar_state="expanded")
+# Create base class
+Base = declarative_base()
 
+# Define User model
+class User(Base):
+    __tablename__ = 'users'
+    __table_args__ = {'schema': 'new_schema'}
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
 
+# Create tables
+Base.metadata.create_all(engine)
 
-st.header("First Page of Analysis")
+# Create session
+Session = sessionmaker(bind=engine)
 
+def sign_up(username, email, password):
+    session = Session()
+    hashed_password = bcrypt.hash(password)
+    new_user = User(username=username, email=email, password=hashed_password)
+    session.add(new_user)
+    session.commit()
+    session.close()
 
+def login(username, password):
+    session = Session()
+    user = session.query(User).filter_by(username=username).first()
+    session.close()
+    if user and bcrypt.verify(password, user.password):
+        return user
+    return None
 
-# USER AUTHENTICATOR
-names = ["Steve Omush", "Rebecca Jackson"]
-usernames = ["somush", "rjackson"]
+def main():
+    st.title('User Authentication')
 
-# Load hashed passwords
-file_path = Path(__file__).parent / "hashed_pw.pkl"
-with file_path.open("rb") as file:
-    hashed_passwords = pickle.load(file)
+    logged_in = st.session_state.get('logged_in', False)
+    username = st.session_state.get('username', '')
 
+    if not logged_in:
+        option = st.sidebar.selectbox('Menu', ['Sign Up', 'Login'])
 
-authenticator = stauth.Authenticate(names, usernames, hashed_passwords, "twitter_dashboard", "abcdef", cookie_expiry_days=10)
+        if option == 'Sign Up':
+            st.title('Sign Up')
+            username = st.text_input('Username')
+            email = st.text_input('Email')
+            password = st.text_input('Password', type='password')
+            if st.button('Sign Up'):
+                if not username:
+                    st.error('Please enter your username')
+                elif not email:
+                    st.error('Please enter your email')
+                elif not password:
+                    st.error('Please enter your password')
+                else:
+                    sign_up(username, email, password)
+                    st.success('Sign up successful!')
 
-names, authentication_status, username = authenticator.login("Login", "main")
+        elif option == 'Login':
+            st.title('Log In')
+            username = st.text_input('Username')
+            password = st.text_input('Password', type='password')
+            if st.button('Login'):
+                user = login(username, password)
+                if user:
+                    st.session_state['logged_in'] = True
+                    st.session_state['username'] = username
+                    st.success('Logged in successfully!')
+    st.empty()
+    if logged_in:
+        st.title(f"Welcome {username}")
+        st.write("This is the user page. You can customize this page further.")
+        
 
+if __name__ == '__main__':
+    main()

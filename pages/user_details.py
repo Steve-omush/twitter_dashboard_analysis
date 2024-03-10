@@ -209,6 +209,7 @@ with col[0]:
     client = visualize_client_distribution(selected_user, sampled_df)
 
 with col[1]:
+    st.header(f"Analysis for: {selected_user}")
     st.markdown('### Account Creation')
     visualize_account_creation_time(selected_user, sampled_df)
     st.markdown('### Location')
